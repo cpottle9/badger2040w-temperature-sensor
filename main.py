@@ -24,7 +24,7 @@ from umqttsimple import MQTTClient
 # Create your own file secrets.py containing WIFI credentials,
 # MQTT credentials, and your time zone offset from GMT in seconds.
 #
-from secrets import WIFI_SSID, WIFI_PASS, COUNTRY, CLIENT_ID, MQTT_SERVER, USER_T, PASSWORD_T, TZ_OFFSET
+from secrets import WIFI_SSID, WIFI_PASS, COUNTRY,  CLIENT_ID, MQTT_SERVER, USER_T, PASSWORD_T, TZ_OFFSET
 
 last_error = 0
 rtc_chip = pcf_chip()
@@ -39,7 +39,7 @@ if wdt.caused_reboot() :
     except :
         # In this case I want to continue execution
         # But sleep for a bit.
-        # 
+        #
         sleep_ms(60000)
         pass
 
@@ -117,57 +117,81 @@ def disconnectWifi() :
     wlan = None
    
 #
-# Display temperature in center of display using size 5
+# Display temperature just below the center of display using
+# hershey font 'sans' size 1.5.
+# Set thickness 3.
 #
+# Font height will be 48 pixels .
+#
+# Note: Hershey fonts have a pixel height of 32 when scale is 1.0.
+#
+
+TEMPERATURE_SCALE     = const(1.5)
+TEMPERATURE_HEIGHT    = const(48) # 32 * 1.5 == 48
+TEMPERATURE_THICKNESS = const(3)
+
+#
+# All other info displayed with hershey font 'sans' size 0.6875.
+# Set thickness 2.
+#
+# font height is 22 pixels.
+#
+
+TEXT_SCALE     = const(0.6875)
+TEXT_HEIGHT    = const(22)  # 32 * 0.6875 == 22
+TEXT_THICKNESS = const(2)
 
 def display_temperature(temp_str) :
-    text_width = display.measure_text(temp_str, 5)
-    text_height = 8 * 5
+    display.set_thickness(TEMPERATURE_THICKNESS)
+    text_width = display.measure_text(temp_str, TEMPERATURE_SCALE)
     x = int((WIDTH - text_width) /2)
-    y = int((HEIGHT - text_height)/2)
-    display.text(temp_str, x, y, WIDTH-x, 5)
+    y = 8 + int((HEIGHT - TEMPERATURE_HEIGHT)/2 + TEMPERATURE_HEIGHT/2)
+    display.text(temp_str, x, y, WIDTH-x, TEMPERATURE_SCALE)
 
-#
-# Display vsys at top right of the screen left size 3.
-#
+
 def display_vsys(str) :
-    text_width = display.measure_text(str, 2)
+    display.set_thickness(TEXT_THICKNESS)
+    text_width = display.measure_text(str, TEXT_SCALE)
     x = WIDTH - text_width
-    y = 0
-    display.text(str, x, y, WIDTH, 2)
+    y = int(TEXT_HEIGHT/2)
+    display.text(str, x, y, WIDTH, TEXT_SCALE)
 
 #
 # Display last_error bottom on left
 #
 def display_lasterror(str) :
+    display.set_thickness(TEXT_THICKNESS)
     x = 0
-    y = HEIGHT - 8*2
-    display.text(str, x, y, WIDTH, 2)
+    y = HEIGHT - int(TEXT_HEIGHT/2)
+    display.text(str, x, y, WIDTH, TEXT_SCALE)
 
 #
 # Display feeder on the bottom right
 #
 def display_feeder(str) :
-    text_width = display.measure_text(str, 2)
+    display.set_thickness(TEXT_THICKNESS)
+    text_width = display.measure_text(str, TEXT_SCALE)
     x = WIDTH - text_width
-    y = HEIGHT - 8*2
-    display.text(str, x, y, WIDTH, 2)
+    y = HEIGHT - int(TEXT_HEIGHT/2)
+    display.text(str, x, y, WIDTH, TEXT_SCALE)
 
 #
 # Display date in top left
 #
 def display_date(str) :
+    display.set_thickness(TEXT_THICKNESS)
     x = 0
-    y = 0
-    display.text(str, x, y, WIDTH, 2)
+    y = int(TEXT_HEIGHT/2)
+    display.text(str, x, y, WIDTH, TEXT_SCALE)
 
 #
 # Display time immediately below date
 #
 def display_time(str) :
+    display.set_thickness(TEXT_THICKNESS)
     x = 0
-    y = 8*2
-    display.text(str, x, y, WIDTH, 2)
+    y = TEXT_HEIGHT + int(TEXT_HEIGHT/2)
+    display.text(str, x, y, WIDTH, TEXT_SCALE)
 
 # badger stemma QT is connected to pins 4 & 5
 i2c = machine.I2C(0,sda=machine.Pin(4), scl=machine.Pin(5), freq=400000)
@@ -195,7 +219,7 @@ def get_vsys():
 def update_screen() :
     global display
     display.set_update_speed(badger2040w.UPDATE_MEDIUM)
-    display.set_font("bitmap8")
+    display.set_font('sans')
 
     wdt.feed(0x21)
     display.set_pen(15)
